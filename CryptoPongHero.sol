@@ -33,10 +33,9 @@ contract PingPongHero {
 
     Game[] public gamesPlayed;
 
-    mapping (address => uint) public playerToGame;
-    mapping (address => uint) public opponentToUnconfirmedGame;
+    mapping (uint => address[]) public gameToPlayers;
+    mapping (address => uint) playerGameCount;
 
-    
     
     // this needs to be a function that writes to the block
     function _finish(address _cr, address _opp, address _winner, uint8 _crScore, uint8 _oppScore, uint256 _wager, uint256 _time) public payable{
@@ -45,10 +44,27 @@ contract PingPongHero {
             require(msg.value == _wager*10**18);
         }
         uint id = gamesPlayed.push(Game(_cr, _opp, _winner, _crScore, _oppScore, _wager, _time, false));
-        playerToGame[_cr] = id;
-        playerToGame[_opp] = id;
-        opponentToUnconfirmedGame[_opp] = id;
+        gameToPlayers[id] = [_cr, _opp];
+        playerGameCount[_opp]++;
+        playerGameCount[_cr]++;
     }
+
+    function _getGamesByOwner(address _owner) external view returns(uint[]) {
+        uint[] memory result = new uint[](playerGameCount[_owner]);
+        uint counter = 0;
+        for (uint i = 0; i < gamesPlayed.length; i++) {
+            if (gameToPlayers[i][0] == _owner) {
+                result[counter] = i;
+                counter++;
+            }
+            if (gameToPlayers[i][1] == _owner) {
+                result[counter] = i;
+                 counter++;
+            }
+        }
+        return result;
+    }
+
 
     function _confirmGame(uint256 _gameId) public payable {
         require(msg.sender == gamesPlayed[_gameId].opponent);
