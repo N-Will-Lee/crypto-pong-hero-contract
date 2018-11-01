@@ -33,8 +33,8 @@ contract PingPongHero {
 
     Game[] public gamesPlayed;
 
-    mapping (uint => address) gameToPlayer;
-    mapping (address => uint) opponentToUnconfirmedGame;
+    mapping (address => uint) public playerToGame;
+    mapping (address => uint) public opponentToUnconfirmedGame;
 
     
     
@@ -45,8 +45,8 @@ contract PingPongHero {
             require(msg.value == _wager*10**18);
         }
         uint id = gamesPlayed.push(Game(_cr, _opp, _winner, _crScore, _oppScore, _wager, _time, false));
-        gameToPlayer[id] = _cr;
-        gameToPlayer[id] = _opp;
+        playerToGame[_cr] = id;
+        playerToGame[_opp] = id;
         opponentToUnconfirmedGame[_opp] = id;
     }
 
