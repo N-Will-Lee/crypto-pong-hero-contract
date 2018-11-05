@@ -41,7 +41,7 @@ contract PingPongHero {
     function _finish(address _cr, address _opp, address _winner, uint8 _crScore, uint8 _oppScore, uint256 _wager, uint256 _time) public payable{
         require(msg.sender == _cr);
         if (_winner == _opp)    {
-            require(msg.value == _wager*10**18);
+            require(msg.value == _wager);
             _opp.transfer(msg.value);
         }
         uint id = gamesPlayed.push(Game(_cr, _opp, _winner, _crScore, _oppScore, _wager, _time, false));
@@ -59,10 +59,11 @@ contract PingPongHero {
 
 
     function _confirmGame(uint256 _gameId) public payable {
+        require(gamesPlayed[_gameId].complete == false);
         address creator = gamesPlayed[_gameId].creator;
         address opponent = gamesPlayed[_gameId].opponent;
         address winner = gamesPlayed[_gameId].winner;
-        uint256 wager = gamesPlayed[_gameId].wager*10**18;
+        uint256 wager = gamesPlayed[_gameId].wager;
         require(msg.sender == opponent);
         if (msg.sender != winner)  {
             require(msg.value == wager);
